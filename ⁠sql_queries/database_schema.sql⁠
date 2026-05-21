@@ -1,0 +1,66 @@
+-- 1. Core dimension table for enterprise holding companies
+CREATE TABLE companies (
+    company_id SERIAL PRIMARY KEY,
+    company_name VARCHAR(150) NOT NULL,
+    industry_sector VARCHAR(100) NOT NULL, -- e.g., Automotive, Luxury Goods
+    hq_city VARCHAR(50) DEFAULT 'Rome',
+    incorporation_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Facilities dimension table (Manufacturing, Warehouses, etc.)
+CREATE TABLE facilities (
+    facility_id SERIAL PRIMARY KEY,
+    company_id INT REFERENCES companies(company_id) ON DELETE CASCADE,
+    facility_name VARCHAR(150) NOT NULL,
+    region VARCHAR(50) NOT NULL, -- e.g., Lazio, Lombardia, Veneto
+    facility_type VARCHAR(50) NOT NULL, 
+    square_meters DECIMAL(12, 2),
+    employee_count INT
+);
+
+-- 3. AI/BIS Adoption tracker (Causal treatment variable)
+CREATE TABLE bis_ai_adoption (
+    adoption_id SERIAL PRIMARY KEY,
+    facility_id INT REFERENCES facilities(facility_id) ON DELETE CASCADE,
+    system_version VARCHAR(50) NOT NULL, 
+    implementation_date DATE NOT NULL,
+    investment_cost_eur DECIMAL(15, 2) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- 4. High-frequency IoT energy and emissions logs (Fact table)
+CREATE TABLE energy_consumption_logs (
+    log_id BIGSERIAL PRIMARY KEY,
+    facility_id INT REFERENCES facilities(facility_id) ON DELETE CASCADE,
+    reading_timestamp TIMESTAMP NOT NULL,
+    electricity_kwh DECIMAL(15, 2) NOT NULL,
+    natural_gas_m3 DECIMAL(15, 2) NOT NULL,
+    renewable_energy_ratio DECIMAL(5, 4) CHECK (renewable_energy_ratio BETWEEN 0 AND 1),
+    calculated_co2_emissions_kg DECIMAL(15, 4) NOT NULL
+);
+
+-- 5. Scope 3 supply chain emissions (Logistics tracking)
+CREATE TABLE supply_chain_shipments (
+    shipment_id BIGSERIAL PRIMARY KEY,
+    company_id INT REFERENCES companies(company_id) ON DELETE CASCADE,
+    origin_city VARCHAR(100) NOT NULL,
+    destination_city VARCHAR(100) NOT NULL,
+    distance_km DECIMAL(10, 2) NOT NULL,
+    transport_mode VARCHAR(50) NOT NULL, 
+    cargo_weight_tons DECIMAL(10, 2) NOT NULL,
+    co2_emissions_kg DECIMAL(15, 4) NOT NULL,
+    shipment_date DATE NOT NULL
+);
+
+-- 6. Quarterly financial metrics for ROI and Cost analysis
+CREATE TABLE financial_metrics (
+    metric_id SERIAL PRIMARY KEY,
+    company_id INT REFERENCES companies(company_id) ON DELETE CASCADE,
+    fiscal_year INT NOT NULL,
+    fiscal_quarter INT CHECK (fiscal_quarter BETWEEN 1 AND 4),
+    revenue_eur DECIMAL(18, 2) NOT NULL,
+    operating_costs_eur DECIMAL(18, 2) NOT NULL,
+    esg_compliance_costs_eur DECIMAL(15, 2) NOT NULL,
+    CONSTRAINT unique_company_quarter UNIQUE (company_id, fiscal_year, fiscal_quarter)
+);
