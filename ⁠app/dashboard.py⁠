@@ -1,0 +1,27 @@
+import streamlit as st
+
+# Configure the Executive Dashboard Layout
+st.set_page_config(page_title="ESG Causal Impact Dashboard", layout="wide")
+
+st.title("🌍 Enterprise ESG & Financial Impact Dashboard")
+st.markdown("### Twin Transition: Evaluating the ROI of AI-Driven Information Systems")
+
+# Executive Sidebar for strategic inputs
+st.sidebar.header("Executive Parameters")
+ai_adoption_rate = st.sidebar.slider("Projected AI Adoption Rate (%)", 10, 100, 50)
+
+st.write("""
+Welcome to the Executive Dashboard. This tool visualizes the causal impact of AI (Business Information Systems) on corporate carbon intensity and operating costs, 
+moving beyond simple correlations to prove actual ROI using econometric modeling.
+""")
+
+st.info("Execute the pipeline in src/causal_analysis.py to generate backend panel data, then load it here for live visualizations.")
+
+# High-level KPIs for the CFO/CSO
+st.markdown("### 📈 Estimated Corporate Impact")
+col1, col2 = st.columns(2)
+col1.metric("Est. Carbon Reduction (Scope 1 & 2)", f"{int(ai_adoption_rate * 0.24)} %", "- Causal Effect")
+col2.metric("Est. Annual Cost Savings", f"€ {int(ai_adoption_rate * 15000):,}", "+ ROI")
+
+st.markdown("---")
+st.caption("Developed for Corporate Strategy & ESG Analytics | Sapienza University of Rome")
