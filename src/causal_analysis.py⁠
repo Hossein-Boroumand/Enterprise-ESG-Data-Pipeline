@@ -1,0 +1,26 @@
+print("\n" + "=" * 80)
+        print("EXECUTING ECONOMETRIC MODEL: CAUSAL IMPACT ON OPERATING COSTS")
+        print("=" * 80)
+
+        model = smf.ols(
+            formula="operating_costs_eur ~ ai_treatment_status + revenue_eur + C(quarter)",
+            data=self.data,
+        )
+        results = model.fit()
+        print(results.summary().tables[1])
+        return results
+
+
+if name == "__main__":
+    # Initialize enterprise simulation engine
+    simulator = EnterpriseDataSimulator(
+        num_companies=10, facilities_per_company=4, num_quarters=16
+    )
+    panel_df = simulator.generate_panel_data()
+
+    # Instantiate the econometric analysis engine
+    evaluator = CausalImpactEvaluator(panel_df)
+
+    # Run causal regressions
+    evaluator.estimate_environmental_impact()
+    evaluator.estimate_financial_impact()
